@@ -3,10 +3,12 @@
 #define radSignal 2
 #define led 13
 
+#define alpha 0.5
+
 volatile bool blip = false;
 
 float raw_cpm = 0;
-int cpm = 0;
+float cpm = 0;
 elapsedMillis period;
 
 void setup() {
@@ -28,7 +30,12 @@ void setup() {
 void loop() {
   if (blip && period != 0) {
     raw_cpm = 60. * 1000. / (float)period; // period in ms, cpm in 1/min
-    String cpmStr = String(raw_cpm);
+
+    // low pass filter, lower alpha means less sensitive to changes
+    cpm += alpha * (raw_cpm - cpm);
+
+    // print to serial monitor
+    String cpmStr = String(cpm);
     Serial.println(cpmStr);
 
     period = 0;
