@@ -1,24 +1,23 @@
 #include <elapsedMillis.h>
 
 #define radSignal 2
-#define led 13
 
 #define alpha 0.3
 
 volatile bool blip = false;
 
+volatile int blipCt = 0;
+
 float raw_cpm = 0;
-float cpm = 0;
+float cpm_sample;
+float cpm;
 elapsedMillis period;
 
 void setup() {
   pinMode(radSignal, INPUT);
-  pinMode(led, OUTPUT);
 
   // pin 2 corresponds to interrupt vector 0
   attachInterrupt(0, onBlip, RISING);
-
-  digitalWrite(led, LOW);
 
   Serial.begin(9600);
 
@@ -28,7 +27,7 @@ void setup() {
 }
 
 void loop() {
-  if (blip && period != 0 && period != 0.1) {
+  /*if (blip && period != 0 && period != 0.1) {
     raw_cpm = 60. * 1000. / (float)period; // period in ms, cpm in 1/min
 
     // low pass filter, lower alpha means less sensitive to changes
@@ -43,10 +42,24 @@ void loop() {
     blip = false;
   }
 
-  delay(1);
+  delay(1);*/
+
+  delay(500);
+
+  cpm_sample = blipCt * 120;  // counts in half a second to counts in one minute
+  
+  // low pass filter, lower alpha means less sensitive to changes
+  cpm += alpha * (cpm_sample - cpm);
+  
+  // print to serial monitor
+  String cpmStr = String(cpm);
+  Serial.println(cpmStr);
+
+  blipCt = 0;
 }
 
 void onBlip() {
   blip = true;
+  blipCt++;
 }
 
