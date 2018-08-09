@@ -3,7 +3,7 @@
 #define radSignal 2
 #define led 13
 
-#define alpha 0.5
+#define alpha 0.3
 
 volatile bool blip = false;
 
@@ -28,7 +28,7 @@ void setup() {
 }
 
 void loop() {
-  if (blip && period != 0) {
+  if (blip && period != 0 && period != 0.1) {
     raw_cpm = 60. * 1000. / (float)period; // period in ms, cpm in 1/min
 
     // low pass filter, lower alpha means less sensitive to changes
